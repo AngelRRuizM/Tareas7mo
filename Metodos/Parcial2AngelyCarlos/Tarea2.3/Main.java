@@ -6,13 +6,18 @@ public class Main{
         Scanner sc = new Scanner(System.in);
 
         n = sc.nextInt();
+        sc.nextLine();
         Fraction [][] matrix = new Fraction [n][n];
         for(int i = 0; i < n; i++){
             for(int j = 0; j < n; j++){
-                matrix[i][j] = new Fraction(sc.nextInt(), sc.nextInt());
+                String x = sc.nextLine();
+                String y = sc.nextLine();
+                matrix[i][j] = new Fraction(x, y);
             }
         }
         p = sc.nextInt();
+        
+        System.out.println("lol");
         Matrices matrixList = new Matrices(matrix, n);
         matrixList.pow(p);
         matrixList.fixedPointVector();
@@ -30,6 +35,7 @@ public class Main{
                 }
                 System.out.println();
             }
+            System.out.println();
         }
     }
 

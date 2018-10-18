@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class Matrices{
@@ -6,10 +8,11 @@ public class Matrices{
     private Fraction[] fixedPoint;
     private Fraction[][] originalMatrix;
     private ArrayList<Fraction[][]> powList;
+    private String[] variables;
 
     public Matrices(Fraction[][] mat, int s){
         size = s;
-        fixedPoint = new Fraction[s];
+        fixedPoint = new Fraction[s + 1];
         originalMatrix = mat;
         powList = new ArrayList<Fraction [][]>();
         powList.add(originalMatrix);
@@ -26,10 +29,18 @@ public class Matrices{
     public Fraction[] getFixed(){
         return fixedPoint;
     }
+
+    public String[] getVariables(){
+        return variables;
+    }
     
     public void pow(int p){
         for(int i = 1; i < p; i++){
-            powList.add(mmult(originalMatrix, powList.get(powList.size() - 1)));
+
+            //System.out.println("Mat in " + i);
+            Fraction[][] mult = mmult(originalMatrix, powList.get(powList.size() - 1));
+            //printm(mult);
+            powList.add(mult);
         }
     }
 
@@ -38,6 +49,10 @@ public class Matrices{
         Fraction[][] mmult = new Fraction[size][size];
         for(int i = 0; i < size; i++){
             //System.out.println("i " + i);
+
+
+            //System.out.println("For 3");
+            //System.out.println("For 2");
             for(int j = 0; j < size; j++){
 
             //System.out.println("j " + j);
@@ -46,7 +61,7 @@ public class Matrices{
                 for(int k = 0; k < size; k++){
 
                     //System.out.println("k " + k);
-                    Fraction mult = new Fraction(x[i][k].num, x[i][k].den);
+                    Fraction mult = new Fraction(x[i][k].num.toString(), x[i][k].den.toString());
                     mult.mult(y[k][j]);
                     acum.add(mult);
                     
@@ -56,14 +71,14 @@ public class Matrices{
         }
 
         //System.out.println("Finshed mmult");
-        printm(mmult);
+        //printm(mmult);
         return mmult;
     }
 
     public void printm(Fraction[][] m){
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                System.out.print(m[i][j].num + "/" + m[i][j].den + "   ");
+        for(int i = 0; i < m.length; i++){
+            for(int j = 0; j < m[i].length; j++){
+                System.out.print(m[i][j].num.toString() + "/" + m[i][j].den.toString() + "   ");
             }
             System.out.println();
         }
@@ -71,59 +86,64 @@ public class Matrices{
     }
 
     public void fixedPointVector(){
-        Fraction[][] matrix = copyMatrix(originalMatrix);
-        Fraction[][] lastM;
-        boolean converged = false;
-        if(checkAbsorbent()){
-            //System.out.println("absorbent");
-            fixedPoint = null;
-        }
-        else{
-            if(checkCycle()){
+        variables = new String[size];
 
-                //System.out.println("cycle");
-                fixedPoint = null;
-            }
-            else{
-                long i = 2;
-                matrix = mmult(matrix, matrix);
-                while(i <= 1048576){
-                    printm(matrix);
-                    matrix = mmult(matrix, originalMatrix);
-                    i++;
-                    if(converge(matrix)){
-                        //System.out.println("converged");
-                        for(int j = 0; j < size; j++){
-                            fixedPoint[j] = matrix[j][j];
-                        }
-                        converged = true;
-                        break;
-                    }
-                    //System.out.println("Didnt converged");
-                }
-                if(!converged){
-                    fixedPoint=null;
-                }
-            }
+        getVariables(variables);
+
+        Fraction[][] mat = copyMatrix(originalMatrix);
+        long i = 2;
+        mat = mmult(mat, mat);
+        boolean converges = checkConverge(mat);
+        while(i <= 2048 && !converges){
+            System.out.println("i: " + i);
+            mat = mmult(mat, mat);
+            i *= 2;
+            converges = checkConverge(mat);
         }
+
+        fixedPoint = new Fraction[size];
+
+        for(int j = 0; j < size; j++){
+            fixedPoint[j] = new Fraction(mat[0][j]);
+        }
+
     } 
 
-    public boolean converge(Fraction[][] currentM){
-        //System.out.println("Check converge");
-        Fraction dif;
-        boolean converge = true;
+    public boolean checkConverge(Fraction[][] mat){
         for(int j = 0; j < size; j++){
             for(int i = 1; i < size; i++){
-                dif = new Fraction(currentM[i][j].num, currentM[i][j].den);
-                dif.subs(currentM[i - 1][j]);
-                dif.div(currentM[i][j]);
-                double error = ((double)dif.num)/((double)dif.den);
-                if(Math.abs(error) > .05){
-                    converge = false;
+                BigDecimal x = new BigDecimal(mat[i][j].num.toString() + ".0");
+                x = x.divide(new BigDecimal(mat[i][j].den.toString() + ".0"), 5, BigDecimal.ROUND_FLOOR);
+                BigDecimal y = new BigDecimal(mat[i - 1][j].num.toString());
+                y = y.divide(new BigDecimal(mat[i - 1][j].den.toString()), 5, BigDecimal.ROUND_FLOOR);
+
+                BigDecimal error = x.subtract(y);
+                error = error.divide(y, 5, BigDecimal.ROUND_FLOOR);
+                error = error.abs();
+                if(error.compareTo(new BigDecimal(".001")) > 0){
+                    return false;
                 }
             }
         }
-        return converge;
+        return true;
+    }
+
+    public void getVariables(String[] vari){
+        int x = -2;
+        for(int i = 0; i < size; i++){
+            if(i % 27 == 0){
+                x++;
+            }
+            if(x == -1){
+                char c = (char)('a' + i);
+                vari[i] = "" + c;
+            }
+            else{
+                char c1 = (char)('a' + x);
+                char c2 = (char)('a' + i);
+                vari[i] = "" + c1 + c2;
+            }
+        }
     }
 
     public Fraction[][] copyMatrix(Fraction[][] x){
@@ -131,45 +151,10 @@ public class Matrices{
         Fraction[][] newM = new Fraction[x.length][x[0].length];
         for(int i = 0; i < x.length; i++){
             for(int j = 0; j < x[0].length; j++){
-                newM[i][j] = new Fraction(x[i][j].num, x[i][j].den);
+                newM[i][j] = new Fraction(x[i][j]);
             }
         }
         return newM;
     }
 
-    public boolean checkAbsorbent(){
-        for(int i = 0; i < size; i++){
-            if(originalMatrix[i][i].num == originalMatrix[i][i].den){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean checkCycle(){
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                if(originalMatrix[i][j].num == originalMatrix[i][i].den){
-                    if(hasCycle(j, i, j)){
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean hasCycle(int nextRow, int orI, int orJ){
-        for(int i = 0; i < size; i++){
-            if(originalMatrix[nextRow][i].num == originalMatrix[nextRow][i].den){
-                if(nextRow == orI && i == orJ){
-                    return true;
-                }
-                else{
-                    return hasCycle(i, orI, orJ);
-                }
-            }
-        }
-        return false;
-    }
 }
