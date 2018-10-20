@@ -89,25 +89,121 @@ public class Matrices{
         variables = new String[size];
 
         getVariables(variables);
-
-        Fraction[][] mat = copyMatrix(originalMatrix);
-        long i = 2;
-        mat = mmult(mat, mat);
-        boolean converges = checkConverge(mat);
-        while(i <= 2048 && !converges){
-            System.out.println("i: " + i);
-            mat = mmult(mat, mat);
-            i *= 2;
-            converges = checkConverge(mat);
-        }
+        
+        Fraction[][] mat = getGJMatrix();
 
         fixedPoint = new Fraction[size];
 
-        for(int j = 0; j < size; j++){
-            fixedPoint[j] = new Fraction(mat[0][j]);
-        }
+        gauss(mat);
+
+        getLastFixed();
 
     } 
+
+    public void getLastFixed(){
+        Fraction last = new Fraction(1);
+
+        for(int i = 0; i < fixedPoint.length - 1; i++){
+            last.subs(fixedPoint[i]);
+        }
+        fixedPoint[fixedPoint.length - 1] = last;
+    }
+
+    public void gauss(Fraction[][] a){
+        
+        int sing = forwardElim(a);
+
+        if(sing != -1){
+            System.out.println("Singular matrix");
+            return;
+        }
+
+        backSub(a);
+    }
+
+    public void swapR(Fraction[][] mat, int i, int j){
+        int N = size - 1;
+        for(int k = 0; k <= N; k++){
+            Fraction temp = mat[i][k];
+            mat[i][k] = mat[j][k];
+            mat[j][k] = temp;
+        }
+    }
+
+    public int forwardElim(Fraction[][] mat){
+        int N = size - 1;
+        for(int k = 0; k < N; k++){
+            int imax = k;
+            Fraction vmax = new Fraction(0);
+
+            for(int i = k + 1; i < N; i++){
+                if(mat[i][k].absFraction().compareTo(vmax) == 1){
+                    vmax = new Fraction(mat[i][k]);
+                    imax = i;
+                }
+            }
+
+            if(mat[k][imax].compareTo(new Fraction(0)) == 0){
+                return k;
+            }
+
+            if(imax != k){
+                swapR(mat, k, imax);
+            }
+
+            for(int i = k + 1; i < N; i++){
+                Fraction f = new Fraction(mat[i][k]);
+                f.div(mat[k][k]);
+
+                for(int j = k + 1; j <= N; j++){
+                    Fraction mult = new Fraction(mat[k][j]);
+                    mult.mult(f);
+                    mat[i][j].subs(mult);
+                }
+
+                mat[i][k] = new Fraction(0);
+
+            }
+            
+        }
+        return -1;
+    }
+
+    public void backSub(Fraction[][] mat){
+        int N = size - 1;
+        for(int i = N - 1; i >= 0; i--){
+            fixedPoint[i] = new Fraction(mat[i][N]);
+
+            for(int j = i + 1; j < N; j++){
+                Fraction mult = new Fraction(mat[i][j]);
+                mult.mult(fixedPoint[j]);
+                fixedPoint[i].subs(mult);
+            }
+
+            fixedPoint[i].div(mat[i][i]);
+        }
+    }
+
+
+    public Fraction[][] getGJMatrix(){
+        Fraction[][] mat = new Fraction[size - 1][size];
+
+        for(int i = 0; i < size -1; i++){
+            for(int j = 0; j < size - 1; j++){
+                mat[i][j] = new Fraction(originalMatrix[j][i]);
+                mat[i][j].subs(originalMatrix[size - 1][i]);
+            }
+        }
+        for(int i = 0; i < size - 1; i++){
+            mat[i][i].subs(new Fraction(1));
+        }
+        for(int i = 0; i < size - 1; i++){
+            mat[i][size - 1] = new Fraction(originalMatrix[size - 1][i]);
+            mat[i][size - 1].mult(-1);
+        }
+
+        return mat;
+    }
 
     public boolean checkConverge(Fraction[][] mat){
         for(int j = 0; j < size; j++){

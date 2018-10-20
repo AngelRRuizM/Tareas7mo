@@ -86,6 +86,11 @@ public class Fraction{
     public void simplify(){
         BigInteger mcd;
 
+        if(this.num.compareTo(new BigInteger("0")) == -1 && this.den.compareTo(new BigInteger("0")) == -1){
+            this.num = this.num.abs();
+            this.den = this.den.abs();
+        }
+
         do {
             mcd = getMCD(this.num, this.den);
             this.num = this.num.divide(mcd);
@@ -101,6 +106,10 @@ public class Fraction{
     private static BigInteger getMCDRec(BigInteger a, BigInteger b) {
         //System.out.println("a " + a.toString() + " b " + b.toString());
         return b.compareTo(new BigInteger("0")) == 0? a: getMCDRec(b, a.mod(b));
+    }
+
+    public Fraction absFraction(){
+        return new Fraction(this.num.abs().toString(), this.den.abs().toString());
     }
 
     /**

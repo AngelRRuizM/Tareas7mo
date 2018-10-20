@@ -17,7 +17,6 @@ public class Main{
         }
         p = sc.nextInt();
         
-        System.out.println("lol");
         Matrices matrixList = new Matrices(matrix, n);
         matrixList.pow(p);
         matrixList.fixedPointVector();
