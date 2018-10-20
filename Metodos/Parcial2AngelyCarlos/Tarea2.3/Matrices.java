@@ -2,6 +2,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+// Tarea 2.3 20/10/18
+//Carlos Augusto Amador Manilla A01329447
+//Angel Roberto Ruiz Mendoza A01325243
+
 public class Matrices{
 
     private int size;
