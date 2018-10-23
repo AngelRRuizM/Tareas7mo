@@ -31,11 +31,16 @@ public class Main{
     }
 
     public static void printMatrixList(ArrayList<Fraction[][]> list){
-        System.out.println("Matrices");
-        for(Fraction[][] m : list){
+        Fraction[][] m;
+        int maxLength = getMaxNumberLength(list);
+        
+        for(int k=0; k<list.size(); k++){
+            System.out.printf("P%d\n", k+1);
+            m = list.get(k);
+
             for(int i = 0; i < m.length; i++){
-                for(int j = 0; j < m.length; j++){
-                    System.out.print(m[i][j].num + "/" +m[i][j].den + "   ");
+                for(int j = 0; j < m[0].length; j++){
+                    System.out.printf("%" + maxLength + "s/%" + maxLength + "s    " , m[i][j].num.toString(), m[i][j].den.toString());
                 }
                 System.out.println();
             }
@@ -43,10 +48,34 @@ public class Main{
         }
     }
 
-    public static void printFixedPointVector(Fraction[] fixed){
-        System.out.println("The fixed point vector is: ");
-        for(int i = 0; i < fixed.length; i++){
-            System.out.println(fixed[i].num + "/"+fixed[i].den);
+    public static int getMaxNumberLength(ArrayList<Fraction[][]> list) {
+        Fraction f;
+        int max = Integer.MIN_VALUE;
+        int current;
+
+        for(Fraction[][] m: list) {
+            for(int i=0; i<m.length; i++) {
+                for(int j=0; j<m[0].length; j++) {
+                    f = m[i][j];
+                    current = Math.max(f.num.toString().length(), f.den.toString().length());
+
+                    if(current > max) {
+                        max = current;
+                    }
+                }
+            }
         }
+
+        return max;
+    }
+
+    public static void printFixedPointVector(Fraction[] fixed){
+        System.out.print("Vector de punto fijo: (");
+
+        for(int i = 0; i < fixed.length-1; i++){
+            System.out.printf("%s/%s, " , fixed[i].num.toString(), fixed[i].den.toString());
+        }
+
+        System.out.printf("%s/%s)\n" , fixed[fixed.length-1].num.toString(), fixed[fixed.length-1].den.toString());
     }
 }
