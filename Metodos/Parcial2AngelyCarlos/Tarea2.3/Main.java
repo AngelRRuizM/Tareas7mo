@@ -1,9 +1,8 @@
-import java.util.*;
-
 // Tarea 2.3 20/10/18
-//Carlos Augusto Amador Manilla A01329447
-//Angel Roberto Ruiz Mendoza A01325243
+// Carlos Augusto Amador Manilla A01329447
+// Angel Roberto Ruiz Mendoza A01325243
 
+import java.util.*;
 
 public class Main{
     public static void main(String[] args) {
@@ -30,6 +29,7 @@ public class Main{
         printFixedPointVector(matrixList.getFixed());
     }
 
+    // Prints the matrices using the length of the biggest number to format all numbers
     public static void printMatrixList(ArrayList<Fraction[][]> list){
         Fraction[][] m;
         int maxLength = getMaxNumberLength(list);
@@ -48,6 +48,7 @@ public class Main{
         }
     }
 
+    // Gets the length of the biggest number
     public static int getMaxNumberLength(ArrayList<Fraction[][]> list) {
         Fraction f;
         int max = Integer.MIN_VALUE;

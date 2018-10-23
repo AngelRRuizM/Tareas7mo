@@ -1,10 +1,9 @@
-import java.math.BigDecimal;
+// Tarea 2.3 20/10/18
+// Carlos Augusto Amador Manilla A01329447
+// Angel Roberto Ruiz Mendoza A01325243
+
 import java.math.BigInteger;
 import java.util.ArrayList;
-
-// Tarea 2.3 20/10/18
-//Carlos Augusto Amador Manilla A01329447
-//Angel Roberto Ruiz Mendoza A01325243
 
 public class Matrices{
 
@@ -38,70 +37,45 @@ public class Matrices{
         return variables;
     }
     
+    // Calculates the power matrices
     public void pow(int p){
         for(int i = 1; i < p; i++){
-
-            //System.out.println("Mat in " + i);
             Fraction[][] mult = mmult(originalMatrix, powList.get(powList.size() - 1));
-            //printm(mult);
             powList.add(mult);
         }
     }
 
+    // Matrix multiplication
     public Fraction[][] mmult(Fraction[][] x, Fraction[][] y){
-        //System.out.println("mmult");
         Fraction[][] mmult = new Fraction[size][size];
+
         for(int i = 0; i < size; i++){
-            //System.out.println("i " + i);
-
-
-            //System.out.println("For 3");
-            //System.out.println("For 2");
             for(int j = 0; j < size; j++){
-
-            //System.out.println("j " + j);
                 Fraction acum = new Fraction(0);
 
                 for(int k = 0; k < size; k++){
-
-                    //System.out.println("k " + k);
                     Fraction mult = new Fraction(x[i][k].num.toString(), x[i][k].den.toString());
                     mult.mult(y[k][j]);
                     acum.add(mult);
-                    
                 }
+
                 mmult[i][j] = acum;
             }
         }
 
-        //System.out.println("Finshed mmult");
-        //printm(mmult);
         return mmult;
     }
 
-    public void printm(Fraction[][] m){
-        for(int i = 0; i < m.length; i++){
-            for(int j = 0; j < m[i].length; j++){
-                System.out.print(m[i][j].num.toString() + "/" + m[i][j].den.toString() + "   ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
+    // Calculates fixed point vector using Gaussian elimination
     public void fixedPointVector(){
         variables = new String[size];
-
         getVariables(variables);
         
         Fraction[][] mat = getGJMatrix();
-
         fixedPoint = new Fraction[size];
-
         gauss(mat);
 
         getLastFixed();
-
     } 
 
     public void getLastFixed(){
@@ -110,15 +84,16 @@ public class Matrices{
         for(int i = 0; i < fixedPoint.length - 1; i++){
             last.subs(fixedPoint[i]);
         }
+
         fixedPoint[fixedPoint.length - 1] = last;
     }
 
+    // Do gaussian elimination to the given matrix
     public void gauss(Fraction[][] a){
-        
         int sing = forwardElim(a);
 
         if(sing != -1){
-            System.out.println("Singular matrix");
+            System.out.println("Singular matrix. Can't apply gaussian elimination.");
             return;
         }
 
@@ -134,6 +109,7 @@ public class Matrices{
         }
     }
 
+    // Forward elimination step for Gaussian elimination
     public int forwardElim(Fraction[][] mat){
         int N = size - 1;
         for(int k = 0; k < N; k++){
@@ -173,6 +149,7 @@ public class Matrices{
         return -1;
     }
 
+    // Backward substitution step for Gaussian elimination
     public void backSub(Fraction[][] mat){
         int N = size - 1;
         for(int i = N - 1; i >= 0; i--){
@@ -188,7 +165,7 @@ public class Matrices{
         }
     }
 
-
+    // Formats the original matrix to a matrix which Gaussian elimination can be applied
     public Fraction[][] getGJMatrix(){
         Fraction[][] mat = new Fraction[size - 1][size];
 
@@ -207,25 +184,6 @@ public class Matrices{
         }
 
         return mat;
-    }
-
-    public boolean checkConverge(Fraction[][] mat){
-        for(int j = 0; j < size; j++){
-            for(int i = 1; i < size; i++){
-                BigDecimal x = new BigDecimal(mat[i][j].num.toString() + ".0");
-                x = x.divide(new BigDecimal(mat[i][j].den.toString() + ".0"), 5, BigDecimal.ROUND_FLOOR);
-                BigDecimal y = new BigDecimal(mat[i - 1][j].num.toString());
-                y = y.divide(new BigDecimal(mat[i - 1][j].den.toString()), 5, BigDecimal.ROUND_FLOOR);
-
-                BigDecimal error = x.subtract(y);
-                error = error.divide(y, 5, BigDecimal.ROUND_FLOOR);
-                error = error.abs();
-                if(error.compareTo(new BigDecimal(".001")) > 0){
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public void getVariables(String[] vari){
@@ -247,7 +205,6 @@ public class Matrices{
     }
 
     public Fraction[][] copyMatrix(Fraction[][] x){
-        //System.out.println("Copy Matrix");
         Fraction[][] newM = new Fraction[x.length][x[0].length];
         for(int i = 0; i < x.length; i++){
             for(int j = 0; j < x[0].length; j++){
