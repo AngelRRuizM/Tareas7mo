@@ -1,0 +1,7 @@
+Angel Roberto Ruiz Mendoza A01324489
+Carlos Augusto Amador Manilla A01329447
+
+Para compilar, entrar desde la cocnsola al directorio donde esta ete archivo y escriba lo siguiente
+    javac Main.java
+Para correr el programa con input redireccionado, crear un archivo .txt con el input y hacer lo siguiente
+    java Main < nombreDelArchivo.txt
