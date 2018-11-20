@@ -1,3 +1,8 @@
+/*
+*Angel Roberto Ruiz Mendoza A01324489
+*Carlos Augusto Amador Manilla A01329447
+*Clase que simula ser el sistema de colas
+*/
 import java.util.concurrent.TimeUnit;
 import java.util.*;
 
@@ -15,8 +20,11 @@ public class SystemQ{
     public SystemQ(int nc, int ns, int A, int S, RandomGen random){
         this.nc = nc;
         this.ns = ns;
-        this.A = 60 / A;
-        this.S = 60 / S;
+        double qA = 60.0 / (A);
+        double qS = 60.0 / (S);
+        this.A = (int) Math.ceil(qA);
+        this.S = (int) Math.ceil(qS);
+        System.out.println((this.A) + " " + (this.S));
         this.time = 0;
         this.random = random;
     }
@@ -32,7 +40,18 @@ public class SystemQ{
         nC = new Client(0, A);
         int i = 1;
         while(nC != null || !queue.isEmpty() || !busyServers.isEmpty()){
-            System.out.println("<" + time + ">");
+            //System.out.println("<" + time + ">");
+
+            //Libera los servidores que terminarón de servir
+            ArrayList<Server> busy = getFinishedBusy();
+            if(busy.size() > 0){
+                for(Server s : busy){
+                    printTermina(s.attending, s);
+                }
+                removeAndAdd(busy);
+            }
+
+            //Mete a un nuevo cliente a la cola
             if(nC != null && nC.arrivalTime == time){
                 queue.add(nC);
                 printLlega(nC);
@@ -44,25 +63,22 @@ public class SystemQ{
                     nC = null;
                 }
             }
-            if(!queue.isEmpty() && !servers.isEmpty()){
+
+            //Atiende clientes de la fila 
+            while(!queue.isEmpty() && !servers.isEmpty()){
                 Client first = queue.remove(0);
                 Server firstServer = servers.remove(0);
                 firstServer.attend(first, time);
                 printAtendido(first, firstServer);
                 busyServers.add(firstServer);
             }
-            else{
-                if(!queue.isEmpty() && servers.isEmpty()){
-                    printEspera(queue.get(0));
+            if(!queue.isEmpty() && servers.isEmpty()){
+                for(Client c : queue){
+                    printEspera(c);
                 }
+                
             }
-            ArrayList<Server> busy = getFinishedBusy();
-            if(busy.size() > 0){
-                for(Server s : busy){
-                    printTermina(s.attending, s);
-                }
-                removeAndAdd(busy);
-            }
+            
             waitSec(1);
             time++;
         }

@@ -1,3 +1,8 @@
+/*
+*Angel Roberto Ruiz Mendoza A01324489
+*Carlos Augusto Amador Manilla A01329447
+*Clase main 
+*/
 import java.util.*;
 
 public class Main{
@@ -17,9 +22,7 @@ public class Main{
             System.out.println("Sistema imposible");
             return;
         }
-        RandomGen random = new RandomGen(a, c, m);
-        random.generateList(x0);
-        
+        RandomGen random = new RandomGen(a, c, m, x0);
         SystemQ system = new SystemQ(nc, ns, A, S, random);
         system.run();
     }
